@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>  
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Микрозаймы</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@200;300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Unbounded', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        .policy-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 15px;
+            background-color: white;
+            text-align: center;
+        }
+
+        #agreementScreen {
+            display: none;
+        }
+
+        .close-policy-btn {
+            background-color: #613ec6;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            padding: 12px 0;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            width: 100%;
+            max-width: calc(100% - 30px);
+            margin: 0 auto;
+            display: block;
+        }
+        
+        html {
+            overflow: hidden;
+            height: 100%;
+        }
+        
+        body {
+            background-color: white;
+            color: #333;
+            height: 100%;
+            overflow: auto;
+            -webkit-overflow-scrolling: touch;
+            touch-action: pan-y;
+        }
+        
+        .container {
+            max-width: 100%;
+            padding: 15px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+        
+        .container.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .header {
+            background-color: #613ec6;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-size: 20px;
+            font-weight: 500;
+            position: relative;
+            border-bottom-left-radius: 25px;
+            border-bottom-right-radius: 25px;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+        
+        .header.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .back-btn {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            display: none;
+            cursor: pointer;
+            width: 30px;
+            height: 30px;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>');
+            background-repeat: no-repeat;
+            background-position: center;
+            z-index: 10;
+        }
+        
+        .loan-list {
+            display: block;
+            margin-top: 25px;
+            scroll-behavior: smooth;
+        }
+        
+        .loan-item {
+            background-color: white;
+            border-radius: 25px;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            box-shadow: 0px 4px 20px 0px #EDEFF3;
+            justify-content: space-between;
+            align-items: center;
+            transition: transform 0.2s ease;
+        }
+        
+        .loan-item:active {
+            transform: scale(0.98);
+        }
+        
+        .loan-logo {
+            width: 60px;
+            height: 60px;
+            border-radius: 10px;
+            background-color: #f5f5f5;
+            margin-right: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        
+        .loan-logo img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        
+        .loan-content {
+            display: flex;
+            align-items: center;
+            flex-grow: 1;
+        }
+        
+        .loan-info {
+            flex-grow: 1;
+        }
+        
+        .loan-name {
+            font-weight: 400; 
+            font-size: 15px;
+            margin-bottom: 5px;
+            color: #180e39;
+        }
+        
+        .loan-details {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .loan-amount {
+            font-weight: 300; 
+            color: #180e39;
+            opacity: 0.5;
+            font-size: 12px;
+        }
+        
+        .stars {
+            font-weight: 300;
+            color: #FF7A00;
+            font-size: 12px;
+        }
+        
+        #redtags {
+           color: #e0a359;
+           background-color: #fff0de;
+           border-radius: 100px;
+           padding: 3px;
+           padding-left: 8px;
+           padding-right: 8px;           
+        }
+        
+        #bluetags {
+           color: #666f97;
+           background-color: #eff0fb;
+           border-radius: 100px;
+           padding: 3px;
+           padding-left: 8px;
+           padding-right: 8px;              
+        } 
+        
+        #greentags {
+           color: #418445;
+           background-color: #ecf7ec;
+           border-radius: 100px;
+           padding: 3px;
+           padding-left: 8px;
+           padding-right: 8px;              
+        }        
+        
+        .loan-action {
+            background-color: #613ec6;
+            color: white;
+            border: none;
+            border-radius: 100px;
+            width: 15px;
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.2s;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>');
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: 24px;
+        }
+        
+        .loan-action:hover {
+            background-color: #00be68;
+        }
+        
+        .webview-container {
+            display: none;
+            height: calc(100vh - 60px);
+            width: 100%;
+            border-radius: 25px;
+            overflow: hidden;
+            margin-top: 30px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            position: relative;
+        }
+        
+        
+        .webview {
+            width: 100%;
+            height: 100%;
+            border: none;
+            border-radius: 15px;
+        }
+        
+        .app-title {
+            color: white;
+            font-size: 18px;
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            text-align: center;
+            padding: 0 40px;
+            box-sizing: border-box;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        /* Стили для экрана соглашения */
+        .agreement-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            z-index: 1000;
+            text-align: center;
+            transition: opacity 0.5s ease;
+        }
+        
+        .agreement-screen.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .agreement-content {
+            max-width: 100%;
+            margin-bottom: 20px;
+            font-size: 16px;
+            line-height: 1.5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .agreement-title {
+            font-size: 22px;
+            font-weight: 500;
+            margin-bottom: 20px;
+            color: #613ec6;
+        }
+
+        .agreement-text {
+            margin-bottom: 20px;
+            font-size: 15px;
+            font-weight: 400;
+            max-width: 350px;
+            color: #180e39;
+            opacity: 0.5;
+        }
+
+        .policy-link {
+            color: #613ec6;
+            text-decoration: underline;
+            cursor: pointer;
+            margin: 10px 0;
+            font-weight: 500;
+            font-size: 13px;
+        }
+
+        .policy-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            z-index: 1001;
+            padding: 20px 15px 20px 15px;
+            overflow-y: auto;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .policy-content::-webkit-scrollbar { 
+            display: none;
+        }
+         
+        .policy-content {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+            background-color: white;
+            border-radius: 25px;
+            padding: 25px;
+            max-width: 100%;
+            max-height: 70vh;
+            overflow-y: auto;
+            margin-top: 20px;
+            animation: slideUp 0.5s ease;
+        }
+        
+        .policy-content h2 {
+            font-size: 18px;
+            font-weight: 500; 
+            margin-bottom: 20px;
+            color: #180e39;
+        }
+        
+        .policy-content p {
+            font-size: 14px;
+            font-weight: 400; 
+            color: #180e39;
+            opacity: 0.5;
+        }
+
+        @keyframes slideUp {
+            from { 
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            to { 
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .close-policy {
+            color: white;
+            font-size: 24px;
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            cursor: pointer;
+        }
+
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            margin: 20px 0;
+            justify-content: center;
+            width: 100%;
+            color: #180e39;
+        }
+
+        .checkbox {
+            width: 22px;
+            height: 22px;
+            margin-right: 10px;
+            color: #180e39;
+            accent-color: #613ec6;
+        }
+
+        .accept-btn {
+            background-color: #00be68;
+            color: white;
+            border: none;
+            border-radius: 100px;
+            padding: 12px 30px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.5s;
+            width: 90%;
+            max-width: 400px;
+        }
+
+        .accept-btn:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+            transform: scale(0.98);
+        }
+
+        .accept-btn:active {
+            transform: scale(0.95);
+        }
+        
+        /* Стили для экрана загрузки */
+.loading-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+.loading-screen.show {
+    opacity: 1;
+}
+
+.loader {
+    width: 80px;
+    height: 80px;
+    position: relative;
+    margin-bottom: 30px;
+}
+
+.loader-circle {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border: 8px solid #f3f3f3;
+    border-top: 8px solid #613ec6;
+    border-radius: 50%;
+    animation: spin 1.5s linear infinite;
+}
+
+.loader-percent {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 18px;
+    font-weight: 500;
+    color: #613ec6;
+}
+
+.loading-title {
+    font-size: 18px;
+    font-weight: 500;
+    margin-bottom: 15px;
+    color: #613ec6;
+    text-align: center;
+}
+
+.loading-text {
+    font-size: 15px;
+    color: #180e39;
+    opacity: 0.7;
+    text-align: center;
+    font-weight: 400;
+    max-width: 80%;
+    margin: 0 auto 20px;
+    min-height: 40px;
+    opacity: 0.5;
+    transition: opacity 0.5s ease;
+}
+
+.loading-text.fade {
+    opacity: 0;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+    </style>
+</head>
+<body>
+    <!-- Экран соглашения -->
+    <div class="agreement-screen" id="agreementScreen">
+        <div class="agreement-content">
+            <div class="agreement-title">Добро пожаловать!</div>
+            <div class="agreement-text">
+                Приложение создано исключительно для подбора онлайн займов. Используя приложение «Займы Онлайн» вы подтверждаете, что принимаете и ознакомлены с Политикой Конфиденциальности.
+            </div>
+            <div class="policy-link" id="policyLink">Политика Конфиденциальности</div>
+            
+            <div class="checkbox-container">
+                <input type="checkbox" id="agreeCheckbox" class="checkbox">
+                <label for="agreeCheckbox">Я согласен с условиями</label>
+            </div>
+            <div class="policy-footer">
+            <button class="accept-btn" id="acceptBtn" disabled>Принять</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно политики -->
+    <div class="policy-modal" id="policyModal">
+        <span class="close-policy" id="closePolicy">&times;</span>
+        <div class="policy-content">
+            <h2>Политика Конфиденциальности</h2>
+            <p>1. Общие положения</p>
+            <p>1.1. Настоящая Политика конфиденциальности регулирует порядок обработки и использования персональных данных пользователей приложения «Займы Онлайн».</p>
+            <p>1.2. Используя приложение, вы даете согласие на обработку ваших персональных данных в соответствии с настоящей Политикой конфиденциальности.</p>
+            
+            <p>2. Собираемые данные</p>
+            <p>2.1. Приложение может собирать следующую информацию о пользователях:</p>
+            <p>- Технические данные устройства</p>
+            <p>- Данные о местоположении</p>
+            <p>- Данные о взаимодействии с приложением</p>
+            
+            <p>3. Использование данных</p>
+            <p>3.1. Собранные данные используются для:</p>
+            <p>- Предоставления услуг приложения</p>
+            <p>- Улучшения качества работы приложения</p>
+            <p>- Персонализации контента</p>
+            
+            <p>4. Защита данных</p>
+            <p>4.1. Мы принимаем все необходимые меры для защиты персональных данных пользователей от несанкционированного доступа.</p>
+            
+            <p>5. Изменения в политике</p>
+            <p>5.1. Мы оставляем за собой право вносить изменения в настоящую Политику конфиденциальности.</p>
+        </div>
+    </div>
+    
+    <!-- Экран загрузки -->
+<div class="loading-screen" id="loadingScreen">
+    <div class="loader">
+        <div class="loader-circle"></div>
+        <div class="loader-percent" id="loaderPercent">0%</div>
+    </div>
+    <div class="loading-title">Подбираем для вас лучшие займы</div>
+    <div class="loading-text" id="loadingText1">Рекомендуем отправить заявку в 3–4 компании. Это увеличит шанс быстрого одобрения займа.</div>
+    <div class="loading-text fade" id="loadingText2">Найдено <span id="offersCount">0</span> предложений...</div>
+</div>
+
+    <!-- Основной контент приложения (изначально скрыт) -->
+    <div class="header">
+        <button class="back-btn"></button>
+        <div class="app-title">Микрозаймы</div>
+    </div>
+    
+    <div class="container">
+        <div class="loan-list">
+            <div class="loan-item" data-url="https://pxl.leads.su/click/5542a99141ca7871bdb246c3a009980d?erid=2W5zFJkUBEY">
+                <div class="loan-content">
+                    <div class="loan-logo">
+                        <img src="https://roviosda.github.io/Zajmy-onlajn/срочноденьги.png" alt="Срочно деньги">
+                    </div>
+                    <div class="loan-info">
+                        <div class="loan-name">Срочно деньги</div>
+                        <div class="loan-details">
+                            <div class="stars" id="bluetags">без %</div>
+                            <div class="loan-amount">До 100 000 ₽</div>
+                        </div>
+                    </div>
+                </div>
+                <button class="loan-action"></button>
+            </div>
+            
+            <div class="loan-item" data-url="https://pxl.leads.su/click/cae171e66655e7cab7554bfc7ef0a1d5?erid=LjN8KBUQh">
+                <div class="loan-content">
+                    <div class="loan-logo">
+                        <img src="https://roviosda.github.io/Zajmy-onlajn/moneyman.png" alt="MoneyMan">
+                    </div>
+                    <div class="loan-info">
+                        <div class="loan-name">MoneyMan</div>
+                        <div class="loan-details">
+                            <div class="stars" id="redtags">быстро</div>
+                            <div class="loan-amount">До 100 000 ₽</div>
+                        </div>
+                    </div>
+                </div>
+                <button class="loan-action"></button>
+            </div>
+            
+            <div class="loan-item" data-url="https://pxl.leads.su/click/ad1ef2502a08b90f505a6eb19f5ccecf?erid=2W5zFHLrpVv">
+                <div class="loan-content">
+                    <div class="loan-logo">
+                        <img src="https://roviosda.github.io/Zajmy-onlajn/boostra.png" alt="Boostra">
+                    </div>
+                    <div class="loan-info">
+                        <div class="loan-name">Boostra</div>
+                        <div class="loan-details">
+                            <div class="loan-amount">До 30 000 ₽</div>
+                        </div>
+                    </div>
+                </div>
+                <button class="loan-action"></button>
+            </div>
+            
+            <div class="loan-item" data-url="https://pxl.leads.su/click/f8e967d9ab04a1c4bb68a7e2bd76795f?erid=2W5zFHKRY8p">
+                <div class="loan-content">
+                    <div class="loan-logo">
+                        <img src="https://roviosda.github.io/Zajmy-onlajn/турбозайм.png" alt="Турбозайм">
+                    </div>
+                    <div class="loan-info">
+                        <div class="loan-name">Турбозайм</div>
+                        <div class="loan-details">
+                            <div class="stars" id="greentags">лучшее</div>
+                            <div class="loan-amount">До 50 000 ₽</div>
+                        </div>
+                    </div>
+                </div>
+                <button class="loan-action"></button>
+            </div>
+            
+            <div class="loan-item" data-url="https://pxl.leads.su/click/53c3f1fc45e6c2b2fbd8192cd4d9d028?erid=2W5zFJLdzVv">
+                <div class="loan-content">
+                    <div class="loan-logo">
+                        <img src="https://roviosda.github.io/Zajmy-onlajn/екапуста.png" alt="Е-капуста">
+                    </div>
+                    <div class="loan-info">
+                        <div class="loan-name">Екапуста</div>
+                        <div class="loan-details">
+                            <div class="stars" id="redtags">быстро</div>
+                            <div class="loan-amount">До 30 000 ₽</div>
+                        </div>
+                    </div>
+                </div>
+                <button class="loan-action"></button>
+            </div>
+            
+            <div class="loan-item" data-url="https://pxl.leads.su/click/ac8a0d88e2ec5b74929576e6cbdb51cf?erid=2W5zFGjNpAL">
+                <div class="loan-content">
+                    <div class="loan-logo">
+                        <img src="https://roviosda.github.io/Zajmy-onlajn/веб-займ.png" alt="Вебзайм">
+                    </div>
+                    <div class="loan-info">
+                        <div class="loan-name">Вебзайм</div>
+                        <div class="loan-details">
+                            <div class="loan-amount">До 30 000 ₽</div>
+                        </div>
+                    </div>
+                </div>
+                <button class="loan-action"></button>
+            </div>
+            
+            <div class="loan-item" data-url="https://pxl.leads.su/click/4f67b6e5836856fe32906c345378ba03?erid=2W5zFH1Uavc">
+                <div class="loan-content">
+                    <div class="loan-logo">
+                        <img src="https://roviosda.github.io/Zajmy-onlajn/привет сосед.png" alt="Привет, Сосед!">
+                    </div>
+                    <div class="loan-info">
+                        <div class="loan-name">Привет, Сосед!</div>
+                        <div class="loan-details">
+                            <div class="loan-amount">До 30 000 ₽</div>
+                        </div>
+                    </div>
+                </div>
+                <button class="loan-action"></button>
+            </div>
+            
+            <div class="loan-item" data-url="https://pxl.leads.su/click/5cc8d746755521ca63af21186c34bd37?erid=2W5zFGxo4xY">
+                <div class="loan-content">
+                    <div class="loan-logo">
+                        <img src="https://roviosda.github.io/Zajmy-onlajn/joymoney.png" alt="Joymoney">
+                    </div>
+                    <div class="loan-info">
+                        <div class="loan-name">Joymoney</div>
+                        <div class="loan-details">
+                            <div class="stars" id="bluetags">без %</div>
+                            <div class="loan-amount">До 100 000 ₽</div>
+                        </div>
+                    </div>
+                </div>
+                <button class="loan-action"></button>
+            </div>
+            
+            <div class="loan-item" data-url="https://pxl.leads.su/click/534ffff47c27d944f5f4daf79eb4f0cd?erid=2W5zFK8YuhS">
+                <div class="loan-content">
+                    <div class="loan-logo">
+                        <img src="https://roviosda.github.io/Zajmy-onlajn/webbankir.png" alt="Webbankir">
+                    </div>
+                    <div class="loan-info">
+                        <div class="loan-name">Webbankir</div>
+                        <div class="loan-details">
+                            <div class="stars" id="redtags">быстро</div>
+                            <div class="loan-amount">До 30 000 ₽</div>
+                        </div>
+                    </div>
+                </div>
+                <button class="loan-action"></button>
+            </div>
+            
+            <div class="loan-item" data-url="https://pxl.leads.su/click/ece6b784355c5249a598bc1e9901eefa?erid=2W5zFHMEJZN">
+                <div class="loan-content">
+                    <div class="loan-logo">
+                        <img src="https://roviosda.github.io/Zajmy-onlajn/oneclickmoney.png" alt="OneClickMoney">
+                    </div>
+                    <div class="loan-info">
+                        <div class="loan-name">OneClickMoney</div>
+                        <div class="loan-details">
+                            <div class="stars" id="greentags">лучшее</div>
+                            <div class="loan-amount">До 100 000 ₽</div>
+                        </div>
+                    </div>
+                </div>
+                <button class="loan-action"></button>
+            </div>
+            
+            <div class="loan-item" data-url="https://pxl.leads.su/click/9d46500050f8a40d19c3ce7afef355b2?erid=2W5zFJYRqqJ">
+                <div class="loan-content">
+                    <div class="loan-logo">
+                        <img src="https://roviosda.github.io/Zajmy-onlajn/lime.png" alt="Lime-zaim">
+                    </div>
+                    <div class="loan-info">
+                        <div class="loan-name">Lime-zaim</div>
+                        <div class="loan-details">
+                            <div class="loan-amount">До 100 000 ₽</div>
+                        </div>
+                    </div>
+                </div>
+                <button class="loan-action"></button>
+            </div>
+            
+            <div class="loan-item" data-url="https://pxl.leads.su/click/fa54380dc2e3104f666ce3c8c311916a?erid=2W5zFHrMVNY">
+                <div class="loan-content">
+                    <div class="loan-logo">
+                       <img src="https://roviosda.github.io/Zajmy-onlajn/pay ps.png" alt="Pay P.S.">
+                    </div>
+                    <div class="loan-info">
+                        <div class="loan-name">Pay P.S.</div>
+                        <div class="loan-details">
+                            <div class="loan-amount">До 50 000 ₽</div>
+                        </div>
+                    </div>
+                </div>
+                <button class="loan-action"></button>
+            </div>
+            
+            <div class="loan-item" data-url="https://pxl.leads.su/click/bf600dcacb9bbbf6b71494595868aed0?erid=2W5zFK44HXE">
+                <div class="loan-content">
+                    <div class="loan-logo">
+                        <img src="https://roviosda.github.io/Zajmy-onlajn/zaymigo.png" alt="Zaymigo">
+                    </div>
+                    <div class="loan-info">
+                        <div class="loan-name">Zaymigo</div>
+                        <div class="loan-details">
+                            <div class="stars" id="redtags">быстро</div>
+                            <div class="loan-amount">До 30 000 ₽</div>
+                        </div>
+                    </div>
+                </div>
+                <button class="loan-action"></button>
+            </div>
+            
+            <div class="loan-item" data-url="https://pxl.leads.su/click/6639b11f744ad0dc709595d894cac661?erid=2W5zFJvsS8g">
+                <div class="loan-content">
+                    <div class="loan-logo">
+                        <img src="https://roviosda.github.io/Zajmy-onlajn/creditplus.png" alt="Creditplus">
+                    </div>
+                    <div class="loan-info">
+                        <div class="loan-name">Creditplus</div>
+                        <div class="loan-details">
+                            <div class="loan-amount">До 50 000 ₽</div>
+                        </div>
+                    </div>
+                </div>
+                <button class="loan-action"></button>
+            </div>
+            
+            <div class="loan-item" data-url="https://pxl.leads.su/click/86ac5ab64756b018aaaa1a11424c388c?erid=2W5zFK5r3MA">
+                <div class="loan-content">
+                    <div class="loan-logo">
+                        <img src="https://roviosda.github.io/Zajmy-onlajn/vivus.png" alt="Vivus">
+                    </div>
+                    <div class="loan-info">
+                        <div class="loan-name">Vivus</div>
+                        <div class="loan-details">
+                            <div class="stars" id="greentags">лучшее</div>
+                            <div class="loan-amount">До 30 000 ₽</div>
+                        </div>
+                    </div>
+                </div>
+                <button class="loan-action"></button>
+            </div>
+            
+            <div class="loan-item" data-url="https://pxl.leads.su/click/78973cd086ba03ad29dbf9aeb6c92c5e?erid=2W5zFJq8aRv">
+                <div class="loan-content">
+                    <div class="loan-logo">
+                        <img src="https://roviosda.github.io/Zajmy-onlajn/до зарплаты.png" alt="До зарплаты">
+                    </div>
+                    <div class="loan-info">
+                        <div class="loan-name">До зарплаты</div>
+                        <div class="loan-details">
+                            <div class="stars" id="bluetags">без %</div>
+                            <div class="loan-amount">До 100 000 ₽</div>
+                        </div>
+                    </div>
+                </div>
+                <button class="loan-action"></button>
+            </div>
+            
+            <div class="loan-item" data-url="https://pxl.leads.su/click/6963f1b85689d98f09da3910a5fa4aac?erid=2W5zFJoZBhA">
+                <div class="loan-content">
+                    <div class="loan-logo">
+                        <img src="https://roviosda.github.io/Zajmy-onlajn/мигкредит.png" alt="МигКредит">
+                    </div>
+                    <div class="loan-info">
+                        <div class="loan-name">МигКредит</div>
+                        <div class="loan-details">
+                            <div class="stars" id="redtags">быстро</div>
+                            <div class="loan-amount">До 100 000 ₽</div>
+                        </div>
+                    </div>
+                </div>
+                <button class="loan-action"></button>
+            </div>
+            
+            <div class="loan-item" data-url="https://pxl.leads.su/click/cf350d76bde664d7e320956ce0857b89?erid=2W5zFHvjkvL">
+                <div class="loan-content">
+                    <div class="loan-logo">
+                        <img src="https://roviosda.github.io/Zajmy-onlajn/moneza.png" alt="Moneza">
+                    </div>
+                    <div class="loan-info">
+                        <div class="loan-name">Moneza</div>
+                        <div class="loan-details">
+                            <div class="loan-amount">До 30 000 ₽</div>
+                        </div>
+                    </div>
+                </div>
+                <button class="loan-action"></button>
+            </div>
+            
+            <div class="loan-item" data-url="https://pxl.leads.su/click/ad5c40bbdd9c5da3180704348e1327f2?erid=2W5zFHEqVbE">
+                <div class="loan-content">
+                    <div class="loan-logo">
+                        <img src="https://roviosda.github.io/Zajmy-onlajn/гринмани.png" alt="Greenmoney">
+                    </div>
+                    <div class="loan-info">
+                        <div class="loan-name">Greenmoney</div>
+                        <div class="loan-details">
+                            <div class="stars" id="greentags">лучшее</div>
+                            <div class="loan-amount">До 30 000 ₽</div>
+                        </div>
+                    </div>
+                </div>
+                <button class="loan-action"></button>
+            </div>
+            
+            <div class="loan-item" data-url="https://pxl.leads.su/click/55946eacd1f272812feae80b60c8f3f1?erid=2W5zFFxdjZA">
+                <div class="loan-content">
+                    <div class="loan-logo">
+                        <img src="https://roviosda.github.io/Zajmy-onlajn/фин5.png" alt="Fin5">
+                    </div>
+                    <div class="loan-info">
+                        <div class="loan-name">Fin5</div>
+                        <div class="loan-details">
+                            <div class="stars" id="bluetags">без %</div>
+                            <div class="loan-amount">До 25 000 ₽</div>
+                        </div>
+                    </div>
+                </div>
+                <button class="loan-action"></button>
+            </div>
+        </div>
+        
+        <div class="webview-container">
+            <iframe class="webview" src=""></iframe>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Проверяем, принята ли политика
+            const hasAccepted = localStorage.getItem('policyAccepted') === 'true';
+            
+            // Сразу показываем основной контент, если соглашение принято
+            if (hasAccepted) {
+                document.querySelector('.header').style.display = 'block';
+                document.querySelector('.container').style.display = 'block';
+                showMainApp();
+                return;
+            }
+
+            // Показываем экран соглашения только для новых пользователей
+            document.getElementById('agreementScreen').style.display = 'flex';
+            
+            const policyLink = document.getElementById('policyLink');
+            const policyModal = document.getElementById('policyModal');
+            const closePolicy = document.getElementById('closePolicy');
+            const agreeCheckbox = document.getElementById('agreeCheckbox');
+            const acceptBtn = document.getElementById('acceptBtn');
+            const agreementScreen = document.getElementById('agreementScreen');
+            
+            policyLink.addEventListener('click', function() {
+                policyModal.style.display = 'block';
+            });
+            
+            closePolicy.addEventListener('click', function() {
+                policyModal.style.display = 'none';
+            });
+            
+            policyModal.addEventListener('click', function(e) {
+                if (e.target === policyModal) {
+                    policyModal.style.display = 'none';
+                }
+            });
+            
+            agreeCheckbox.addEventListener('change', function() {
+                acceptBtn.disabled = !this.checked;
+            });
+            
+acceptBtn.addEventListener('click', function() {
+    if (!agreeCheckbox.checked) return;
+    
+    agreementScreen.classList.add('fade-out');
+    
+    setTimeout(() => {
+        localStorage.setItem('policyAccepted', 'true');
+        agreementScreen.style.display = 'none';
+        
+        // Показываем экран загрузки
+        const loadingScreen = document.getElementById('loadingScreen');
+        loadingScreen.style.display = 'flex';
+        setTimeout(() => loadingScreen.classList.add('show'), 50);
+        
+        // Анимация загрузки
+        const loaderPercent = document.getElementById('loaderPercent');
+        const loadingText1 = document.getElementById('loadingText1');
+        const loadingText2 = document.getElementById('loadingText2');
+        const offersCount = document.getElementById('offersCount');
+        
+        // Подсчет количества предложений
+        const totalOffers = document.querySelectorAll('.loan-item').length;
+        offersCount.textContent = totalOffers;
+        
+        let progress = 0;
+        const interval = setInterval(() => {
+            progress += 1;
+            loaderPercent.textContent = progress + '%';
+            
+            if (progress >= 100) {
+                clearInterval(interval);
+                
+                // Показываем основной контент после завершения загрузки
+                setTimeout(() => {
+                    loadingScreen.classList.remove('show');
+                    setTimeout(() => {
+                        loadingScreen.style.display = 'none';
+                        document.querySelector('.header').style.display = 'block';
+                        document.querySelector('.container').style.display = 'block';
+                        showMainApp();
+                    }, 500);
+                }, 500);
+            }
+        }, 70); // 70ms * 100 = ~7 секунд
+        
+        // Анимация смены текста
+        setTimeout(() => {
+            loadingText1.classList.add('fade');
+            loadingText2.classList.remove('fade');
+        }, 3500); // Смена текста через 3.5 секунды
+    }, 500);
+});
+
+            function showMainApp() {
+                
+                // Убедимся, что экран загрузки скрыт
+                document.getElementById('loadingScreen').style.display = 'none';
+                const header = document.querySelector('.header');
+                const container = document.querySelector('.container');
+                
+                header.classList.add('show');
+                container.classList.add('show');
+                
+                const loanItems = document.querySelectorAll('.loan-item');
+                const loanList = document.querySelector('.loan-list');
+                const webviewContainer = document.querySelector('.webview-container');
+                const webview = document.querySelector('.webview');
+                const backBtn = document.querySelector('.back-btn');
+                const appTitle = document.querySelector('.app-title');
+                
+                document.addEventListener('touchmove', function(e) {
+                    if (e.scale !== 1) { e.preventDefault(); }
+                }, { passive: false });
+                
+                document.addEventListener('contextmenu', function(e) {
+                    e.preventDefault();
+                });
+                
+                loanItems.forEach(item => {
+                    const actionBtn = item.querySelector('.loan-action');
+                    const url = item.getAttribute('data-url');
+                    
+                    // Обработчик для всей карточки
+                    item.addEventListener('click', function(e) {
+                        // Проверяем, был ли клик по кнопке действия
+                        if (e.target.closest('.loan-action')) {
+                            webview.src = url;
+                            webviewContainer.style.display = 'block';
+                            loanList.style.display = 'none';
+                            backBtn.style.display = 'block';
+                            appTitle.textContent = item.querySelector('.loan-name').textContent;
+                        }
+                    });
+                });
+                
+                backBtn.addEventListener('click', function() {
+                    webviewContainer.style.display = 'none';
+                    loanList.style.display = 'block';
+                    backBtn.style.display = 'none';
+                    appTitle.textContent = 'Микрозаймы';
+                    webview.src = '';
+                });
+            }
+        });
+    </script>
+</body>
+</html>

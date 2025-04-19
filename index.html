@@ -54,9 +54,6 @@
             background-color: white;
             color: #333;
             height: 100%;
-            overflow: auto;
-            -webkit-overflow-scrolling: touch;
-            touch-action: pan-y;
         }
         
         .container {
@@ -116,6 +113,8 @@
             display: block;
             margin-top: 25px;
             scroll-behavior: smooth;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
         }
         
         .loan-item {
